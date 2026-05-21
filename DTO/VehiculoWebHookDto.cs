@@ -3,7 +3,7 @@
     public class VehiculoWebHookDto
     {
         public string Id { get; set; }
-        public string vin { get; set; }
+        public string Vin { get; set; }
         public string Placas { get; set; }
         public string Marca { get; set; }
         public string Modelo { get; set; }

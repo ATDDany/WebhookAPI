@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using WebhookAPI.DTO;
 using WebhookAPI.Models;
@@ -7,12 +8,13 @@ using WebhookAPI.Services;
 namespace WebhookAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class VehiculosController : ControllerBase
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    public class WebhookController : ControllerBase
     {
         private readonly IVehiculoService _vehiculoService;
 
-        public VehiculosController(IVehiculoService service) { 
+        public WebhookController(IVehiculoService service) { 
             _vehiculoService = service;
         }
         [HttpPost("vehiculos")]
@@ -28,9 +30,9 @@ namespace WebhookAPI.Controllers
 
             var result = await _vehiculoService.ProcessWebhookVehiculosAsync(vehiculos);
 
-            return Ok(new
+            return Accepted(new
             {
-                mensaje = "webhook vehiculos recibido correctamente",
+                mensaje = "Webhook vehiculos recibido correctamente.",
                 totalRecibidos = vehiculos.Count,
                 totalInsertados = result
             });
