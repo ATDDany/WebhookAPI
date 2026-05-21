@@ -1,0 +1,15 @@
+﻿namespace WebhookAPI.DTO
+{
+    public class VehiculoWebHookDto
+    {
+        public string Id { get; set; }
+        public string vin { get; set; }
+        public string Placas { get; set; }
+        public string Marca { get; set; }
+        public string Modelo { get; set; }
+        public string Anio { get; set; }
+        public string Color {  get; set; }
+        public string Estado {  get; set; }
+        public DateTime FechaRegistro { get; set; }
+    }
+}
