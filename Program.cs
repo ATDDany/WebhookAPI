@@ -2,6 +2,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using WebhookAPI.BackgroundServices;
 using WebhookAPI.Data;
 using WebhookAPI.Services;
 
@@ -31,8 +32,14 @@ builder.Services.AddApiVersioning(options =>
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("MSSQLServerDaniel")
+    )
+);
 
 builder.Services.AddScoped<IVehiculoService, VehiculoService>();
+builder.Services.AddHostedService<VehiculoQueueProcessor>();
 
 var app = builder.Build();
 

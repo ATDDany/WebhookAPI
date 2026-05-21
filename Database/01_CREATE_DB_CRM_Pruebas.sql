@@ -1,0 +1,8 @@
+USE master;
+GO
+
+IF DB_ID('CRM_Pruebas') IS NULL
+BEGIN
+	CREATE DATABASE CRM_Pruebas
+END
+GO

@@ -1,4 +1,6 @@
-﻿using WebhookAPI.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using WebhookAPI.Data;
 using WebhookAPI.DTO;
 using WebhookAPI.Models;
 
@@ -7,14 +9,13 @@ namespace WebhookAPI.Services
     public class VehiculoService: IVehiculoService
     {
         private readonly ILogger<VehiculoService> _logger;
-        private static readonly List<VehiculoWebHookDto> _queue = new();
 
-        //private readonly AppDbContext _context;
+        private readonly AppDbContext _context;
 
-        public VehiculoService(ILogger<VehiculoService> logger)
+        public VehiculoService(ILogger<VehiculoService> logger, AppDbContext context)
         {
             _logger = logger;
-            //_context = context;
+            _context = context;
         }
 
         public async Task<bool> ProcessWebhookVehiculosAsync(List<VehiculoWebHookDto> vehiculos)
@@ -29,37 +30,33 @@ namespace WebhookAPI.Services
                         _logger.LogWarning("Se salta vehículo, vin vacío");
                         continue;
                     }
-                        
-                    bool existe = _queue.Any(v =>
-                    v.Id == vehiculo.Id);
+
+                    bool existe = await _context
+                        .VehiculoWebhookQueue
+                        .AnyAsync(v =>
+                            v.IdExterno == vehiculo.Id);
 
                     if (existe)
                     {
                         _logger.LogWarning("Se salta vehículo, vin duplicado: '{Vin}'", vehiculo.Vin);
                         continue;
                     }
-                        
 
-                    _queue.Add(vehiculo);
-                    _logger.LogInformation("Vehículo agregado correctamente al Queue: '{Vin}'", vehiculo.Vin);
+                    var queueRegistro = new VehiculoWebhookQueue
+                    {
+                        IdExterno = vehiculo.Id,
+                        Vin = vehiculo.Vin,
+                        Estado = "PENDIENTE",
+                        Carga = JsonSerializer.Serialize(vehiculo),
+                        ContadorReintentos = 0,
+                        FechaRecepcion = DateTime.UtcNow
+                    };
 
-                    //var queueRegistro = new VehiculoWebhookQueue
-                    //{
-                    //    Id = vehiculo.Id,
-                    //    Vin = vehiculo.vin,
-                    //    Placas = vehiculo.Placas,
-                    //    Marca = vehiculo.Marca,
-                    //    Modelo = vehiculo.Modelo,
-                    //    Status = "PROCESANDO",
-                    //    ContadorReintentos = 0,
-                    //    FechaRecepcion = DateTime.UtcNow
-                    //};
-
-                    //_context.VehiculoWebhookQueue.Add(queueRegistro);
+                    _context.VehiculoWebhookQueue.Add(queueRegistro);
                     Console.WriteLine($"Vehiculo recibido: {vehiculo.Vin}");
                 }
 
-                //await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
                 _logger.LogInformation("Webhook vehículos procesado correctamente");
                 return true;
             }

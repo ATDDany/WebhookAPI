@@ -4,30 +4,22 @@ namespace WebhookAPI.Models
 {
     public class VehiculoWebhookQueue
     {
-
-
         [Key]
-        public string Id { get; set; }
+        public int Id { get; set; }
+
+        [Required]
+        [MaxLength(100)]
+        public required string IdExterno { get; set; }
 
         [Required]
         [MaxLength(20)]
         public required string Vin { get; set; }
 
         [Required]
-        [MaxLength(20)]
-        public required string Placas { get; set; }
+        public required string Carga { get; set; }
 
-        [Required]
-        [MaxLength(20)]
-        public required string Marca { get; set; }
-
-        [Required]
-        [MaxLength(20)]
-        public required string Modelo { get; set; }
-
-        [Required]
         [MaxLength(50)]
-        public required string Status { get; set; }
+        public string? Estado { get; set; }
 
         public int ContadorReintentos { get; set; } = 0;
 
